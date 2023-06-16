@@ -17,18 +17,17 @@ public class Vuelo {
 	@Id
 	@Nonnull
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "Número de Vuelo", nullable = false)
 	private Long nro;
 
 	@DateTimeFormat(pattern = "dd-MM-yyyy hh:mm:ss")
-	@Column(name = "Fecha", nullable = false)
+	@Column(name = "fecha", nullable = false)
 	private Date fecha;
 	
-	@Column(name = "Número de Filas")
+	@Column(name = "numero_filas")
 	private int nroFilas;
-	@Column(name = "Número de Asientos por Fila")
+	@Column(name = "numero_asientos_fila")
 	private int nroAsientosPorFila;
-	@Column(name = "Tipo de Vuelo")
+	@Column(name = "tipo_vuelo")
 	private String tipoVuelo;
 	@Nonnull
 	private String destino;
