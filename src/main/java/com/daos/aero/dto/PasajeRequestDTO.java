@@ -1,5 +1,7 @@
 package com.daos.aero.dto;
 
+import com.daos.aero.model.Pasaje;
+
 public class PasajeRequestDTO {
 	
 	private Long dni;
@@ -34,6 +36,12 @@ public class PasajeRequestDTO {
 		this.nroAsiento = nroAsiento;
 	}
 	
-	
+	public Pasaje toModel() {
+		Pasaje pasaje = new Pasaje();
+		
+		
+		return pasaje;
+		
+	}
 
 }
