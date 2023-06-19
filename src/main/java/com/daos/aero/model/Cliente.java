@@ -16,8 +16,6 @@ public class Cliente {
 	//atributos
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
-	@Column(nullable = false, unique = true)
 	private Long dni;
 	@Column(nullable = false)	
 	private String nombre;
@@ -37,14 +35,7 @@ public class Cliente {
 	
 
 	//getter & setter
-	public Long getId() {
-		return id;
-	}
-	
-	public void setId(Long id) {
-		this.id = id;
-	}
-	
+
 	public Long getDni() {
 		return dni;
 	}
