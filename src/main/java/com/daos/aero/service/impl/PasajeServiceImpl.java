@@ -30,10 +30,10 @@ public class PasajeServiceImpl implements PasajeService {
 	private PasajeRepository pasajeRepository;
 
 	@Override
-	public PasajeResponseDTO emitir(PasajeRequestDTO requestDTO) throws Exception {
+	public PasajeResponseDTO emitir(Long dni, Long nroVuelo, Integer nroAsiento) throws Exception {
 		
-		Cliente cliente = validarCliente(requestDTO);
-		Vuelo vuelo = validarVuelo(requestDTO);
+		Cliente cliente = validarCliente(dni);
+		Vuelo vuelo = validarVuelo(nroVuelo, nroAsiento);
 		
 		if ("INTERNACIONAL".equalsIgnoreCase(vuelo.getTipoVuelo())) {
 			
@@ -44,9 +44,9 @@ public class PasajeServiceImpl implements PasajeService {
 	}
 
 
-	private Cliente validarCliente(PasajeRequestDTO requestDTO) throws Excepcion {
+	private Cliente validarCliente(Long dni) throws Excepcion {
 		
-        Cliente cliente = clienteService.getById(requestDTO.getDni());
+        Cliente cliente = clienteService.getById(dni);
 		
 		if (cliente == null) {
 			
@@ -58,9 +58,9 @@ public class PasajeServiceImpl implements PasajeService {
 		
 	}
 	
-    private Vuelo validarVuelo(PasajeRequestDTO requestDTO) throws Excepcion {
+    private Vuelo validarVuelo(Long nroVuelo, Integer nroAsiento) throws Excepcion {
 		
-        Vuelo vuelo = vueloService.getById(requestDTO.getNroVuelo()).orElse(null);
+        Vuelo vuelo = vueloService.getById(nroVuelo).orElse(null);
     	
     	if(vuelo == null) {
 
@@ -77,13 +77,15 @@ public class PasajeServiceImpl implements PasajeService {
     	
         Integer totalAsientos = vuelo.getNroFilas() * vuelo.getNroAsientosPorFila();
         
-        if(requestDTO.getNroAsiento() <= totalAsientos) {
+        if(nroAsiento <= totalAsientos) {
+        	
+        	// TODO Validar si es el primer pasaje
         	
         	List<Pasaje> pasajes = pasajeRepository.findByVuelo(vuelo);
         	
         	for (Pasaje pasaje : pasajes) {
         		
-        		if (pasaje.getNroAsiento() == requestDTO.getNroAsiento()) {
+        		if (pasaje.getNroAsiento() == nroAsiento) {
         			
         			throw new Excepcion("Número de asiento no disponible", HttpStatus.CONFLICT.value());
         		}

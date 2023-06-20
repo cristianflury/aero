@@ -8,7 +8,7 @@ public class PasajeRequestDTO {
 	
 	private Long nroVuelo;
 	
-	private Long nroAsiento;
+	private Integer nroAsiento;
 	
 	
 
@@ -28,11 +28,11 @@ public class PasajeRequestDTO {
 		this.nroVuelo = nroVuelo;
 	}
 
-	public Long getNroAsiento() {
+	public Integer getNroAsiento() {
 		return nroAsiento;
 	}
 
-	public void setNroAsiento(Long nroAsiento) {
+	public void setNroAsiento(Integer nroAsiento) {
 		this.nroAsiento = nroAsiento;
 	}
 	

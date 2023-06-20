@@ -18,7 +18,7 @@ public class Pasaje {
 	private Long numero;
 	
 	@Column (name = "nro_asiento" , nullable = false)
-	private Long nroAsiento;
+	private Integer nroAsiento;
 	
 	@Column (nullable = false)
 	private Double importe;
@@ -39,11 +39,11 @@ public class Pasaje {
 		this.numero = numero;
 	}
 
-	public Long getNroAsiento() {
+	public Integer getNroAsiento() {
 		return nroAsiento;
 	}
 
-	public void setNroAsiento(Long nroAsiento) {
+	public void setNroAsiento(Integer nroAsiento) {
 		this.nroAsiento = nroAsiento;
 	}
 
@@ -70,8 +70,6 @@ public class Pasaje {
 	public void setVuelo(Vuelo vuelo) {
 		this.vuelo = vuelo;
 	}
-	
-
-	
+		
 
 }
