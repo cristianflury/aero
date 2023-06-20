@@ -15,7 +15,6 @@ import jakarta.persistence.OneToOne;
 public class Cliente {
 	//atributos
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long dni;
 	@Column(nullable = false)	
 	private String nombre;
