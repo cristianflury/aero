@@ -58,7 +58,7 @@ public class PasajeServiceImpl implements PasajeService {
 
 	private Cliente validarCliente(Long dni) throws PasajeException {
 
-		Cliente cliente = clienteService.getById(dni);
+		Cliente cliente = clienteService.getById(dni).orElse(null);
 
 		if (cliente == null) {
 
@@ -120,7 +120,7 @@ public class PasajeServiceImpl implements PasajeService {
 
 	private void validarPasaporte(Cliente cliente) throws PasajeException {
 
-		if (cliente.getPasaporte() == null || cliente.getPasaporte().getFechaVencimiento().before(new Date())) {
+		if (cliente.getNumeroPasaporte() == null || cliente.getVencimientoPasaporte().before(new Date())) {
 
 			throw new PasajeException("El cliente no posee pasaporte o el mismo se encuentra vencido", HttpStatus.CONFLICT);
 		}

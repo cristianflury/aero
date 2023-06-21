@@ -2,13 +2,11 @@ package com.daos.aero.model;
 
 import java.util.Date;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 
 @Entity
@@ -16,25 +14,25 @@ public class Cliente {
 	//atributos
 	@Id
 	private Long dni;
-	@Column(nullable = false)	
+	@Column(nullable = false)
 	private String nombre;
-	@Column(nullable = false)	
+	@Column(nullable = false)
 	private String apellido;
-	@Column(nullable = false, unique = true)	
+	@Column(nullable = false, unique = true)
 	private String email;
-	@Column(name = "Fecha de nacimiento", nullable = false)	
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@Column(nullable = false)
 	private Date fechaNacimiento;
+	private String numeroPasaporte;
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date vencimientoPasaporte;
 	
 	//relaciones
-	@ManyToOne
-	@JoinColumn(name = "domicilio_id")
-	private Domicilio domicilio;
 	@OneToOne
-	private Pasaporte pasaporte;
+	//@JoinColumn(name = "domicilio_id")
+	private Domicilio domicilio;
 	
-
 	//getter & setter
-
 	public Long getDni() {
 		return dni;
 	}
@@ -82,12 +80,21 @@ public class Cliente {
 	public void setDomicilio(Domicilio domicilio) {
 		this.domicilio = domicilio;
 	}
-	
-	public Pasaporte getPasaporte() {
-		return pasaporte;
+
+	public String getNumeroPasaporte() {
+		return numeroPasaporte;
+	}
+
+	public void setNumeroPasaporte(String numeroPasaporte) {
+		this.numeroPasaporte = numeroPasaporte;
+	}
+
+	public Date getVencimientoPasaporte() {
+		return vencimientoPasaporte;
+	}
+
+	public void setVencimientoPasaporte(Date vencimientoPasaporte) {
+		this.vencimientoPasaporte = vencimientoPasaporte;
 	}
 	
-	public void setPasaporte(Pasaporte pasaporte) {
-		this.pasaporte = pasaporte;
-	}
 }
