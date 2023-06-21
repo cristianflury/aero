@@ -40,7 +40,6 @@ public class Cliente {
 	
 	//relaciones
 	@OneToOne
-	//@JoinColumn(name = "domicilio_id")
 	private Domicilio domicilio;
 	
 	//getter & setter

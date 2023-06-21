@@ -7,7 +7,6 @@ import org.springframework.hateoas.RepresentationModel;
 import com.daos.aero.model.Cliente;
 import com.daos.aero.model.Domicilio;
 
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.Id;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -19,7 +18,7 @@ import jakarta.validation.constraints.Size;
 public class ClienteDTO extends RepresentationModel<ClienteDTO>{
 	//atributos
 	@Id
-	@NotNull
+	@NotNull( message = "El dni no puede ser nulo.")
 	private Long dni;
 
 	@NotNull
@@ -31,18 +30,20 @@ public class ClienteDTO extends RepresentationModel<ClienteDTO>{
 	private String apellido;	
 
 	@NotNull
-	@Email(message = "El e-mail ingresado no es valido.")
+	@Email(message = "El e-mail ingresado no es válido.")
 	private String email;	
 
-	@NotNull
+	@NotNull( message = "La fecha no puede ser nulo.")
 	@Temporal(TemporalType.DATE)
 	private Date nacimiento;
 
-	@Nonnull
-	private Domicilio domicilio; //cambiar por Long idDomicilio
+	@NotNull( message = "El domicilio no puede ser nulo.")
+	private Domicilio domicilio;
+//	@Nonnull
+//	private Long idDomicilio; //cambiar por Long idDomicilio
 
 	private String numeroPasaporte;
-
+	@Temporal(TemporalType.DATE)
 	private Date vencimientoPasaporte;
 
 	
@@ -59,6 +60,7 @@ public class ClienteDTO extends RepresentationModel<ClienteDTO>{
 		this.email = pojo.getEmail();
 		this.nacimiento = pojo.getFechaNacimiento();
 		this.domicilio = pojo.getDomicilio();
+//		this.idDomicilio = pojo.getDomicilio().getId();
 		this.numeroPasaporte = pojo.getNumeroPasaporte();
 		this.vencimientoPasaporte = pojo.getVencimientoPasaporte();
 	}
@@ -77,7 +79,7 @@ public class ClienteDTO extends RepresentationModel<ClienteDTO>{
 		
 		return c;
 	}
-
+	
 	//getters & setters
 	public Long getDni() {
 		return dni;
@@ -118,8 +120,6 @@ public class ClienteDTO extends RepresentationModel<ClienteDTO>{
 	public void setNacimiento(Date nacimiento) {
 		this.nacimiento = nacimiento;
 	}
-
-	
 	
 	public Domicilio getDomicilio() {
 		return domicilio;
@@ -128,7 +128,7 @@ public class ClienteDTO extends RepresentationModel<ClienteDTO>{
 	public void setDomicilio(Domicilio domicilio) {
 		this.domicilio = domicilio;
 	}
-
+	
 	public String getNumeroPasaporte() {
 		return numeroPasaporte;
 	}

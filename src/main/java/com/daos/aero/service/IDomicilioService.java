@@ -20,15 +20,6 @@ public interface IDomicilioService {
 	void eliminar(Long id);
 	
 	/**
-	 * Filtrar un domicilio por su número, calle y ciudad
-	 * @param numero
-	 * @param calle
-	 * @param ciudad
-	 * @return
-	 */
-	//Domicilio filtrar(String numero, String calle, String ciudad);
-	
-	/**
 	 * Guarda un Domicilio
 	 * @param domicilio
 	 */

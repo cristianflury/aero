@@ -6,6 +6,7 @@ import com.daos.aero.model.Domicilio;
 
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public class DomicilioDTO extends RepresentationModel<DomicilioDTO>{
 	//atributos
@@ -14,6 +15,9 @@ public class DomicilioDTO extends RepresentationModel<DomicilioDTO>{
 	private Long id;
 	private String numero;
 	private String calle;
+	
+	@NotNull
+	@Size(min = 1,max = 50, message = "El nombre de la ciudad es demasiado largo o inválido.")
 	private String ciudad;
 	
 	//constructores
