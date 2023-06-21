@@ -3,7 +3,6 @@ package com.daos.aero.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.daos.aero.dto.DomicilioDTO;
 import com.daos.aero.model.Domicilio;
 
 public interface IDomicilioService {

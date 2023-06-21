@@ -118,10 +118,10 @@ public class ClienteController {
 	 * @throws Exception
 	 */
 	@PostMapping
-	public ResponseEntity<Object> guardar(@RequestBody ClienteDTO dto){//, BindingResult result) throws Exception{
-		//if(result.hasErrors()) {
-		//	return null; //ResponseEntity.status(HttpStatus.BAD_REQUEST).body(formatearError(result));
-		//}
+	public ResponseEntity<Object> guardar(@RequestBody ClienteDTO dto, BindingResult result) throws Exception{
+		if(result.hasErrors()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(result); 
+		}
 		
 		
 		Cliente cliente = dto.toPojo();
@@ -129,13 +129,13 @@ public class ClienteController {
 
 		
 		if(rta.isPresent() && rta.get().getDni().equals(cliente.getDni())) { //DNI es el identificador. No se puede repetir
-			return null; //ResponseEntity.status(HttpStatus.BAD_REQUEST).body(getError("01", "DNI invalido", "El DNI indicado ya se encuentra en la base de datos"));
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El DNI indicado ya se encuentra en la base de datos"); //404 Not Found
 		}
 		
 		
 		rta = clienteService.getByEmail(cliente.getEmail());
 		if(rta.isPresent() && rta.get().getEmail().equals(cliente.getEmail())) { //email es único. No se puede repetir.
-			return null; //ResponseEntity.status(HttpStatus.BAD_REQUEST).body(getError("02", "Email invalido", "El email indicado ya se encuentra en la base de datos"));
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El email indicado ya se encuentra en la base de datos"); //404 Not Found
 		}
 		
 		//guardo el cliente
@@ -143,8 +143,10 @@ public class ClienteController {
 		
 		URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/clientes/{dni}").buildAndExpand(cliente.getDni()).toUri(); //Por convención en REST, se devuelve la  url del recurso recién creado
 		//falta poner la URL del domicilio
-		return ResponseEntity.created(location).build(); //201 (Recurso creado correctamente)
+		return ResponseEntity.ok(buildResponse(cliente)); //200 OK
+		//return ResponseEntity.created(location).build(); //201 (Recurso creado correctamente)
 	}
+	
 	/**
 	 * Modifica un cliente y domicilio existente en la base de datos
 	 * curl --location --request PUT 'http://localhost:8080/clientes/43644112' \
@@ -177,20 +179,20 @@ public class ClienteController {
 		}else {
 			Cliente cliente = dto.toPojo();
 			if(!cliente.getDni().equals(dni)){//DNI es el identificador. No se puede modificar.
-				return null;//falta terminar la clase getError//ResponseEntity.status(HttpStatus.BAD_REQUEST).body(getError("03", "Dato no editable", "Noi puede modificar el dni."));
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No puede modificar el DNI."); //404 Not Found
 			}
 			
 			Optional<Cliente> rta2 = clienteService.getByEmail(cliente.getEmail());
 			if(!rta.equals(rta2)) {
 				if(rta2.isPresent() && rta2.get().getEmail().equals(cliente.getEmail())){ //email es único. No se puede repetir.
-					return null; //ResponseEntity.status(HttpStatus.BAD_REQUEST).body(getError("02", "Email invalido", "El email indicado ya se encuentra en la base de datos"));
+					return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El email indicado ya se encuentra en la base de datos"); //404 Not Found
 				}
 			}
-			//falta verificar si el email fue modificado y si el nuevo mail (si no es null) no exista en la base de datos
+			
 			//actualizo el cliente
 			clienteService.actualizar(cliente);
-			return ResponseEntity.ok(buildResponse(cliente)); //200 OK
 			
+			return ResponseEntity.ok(buildResponse(cliente)); //200 OK
 		}
 	}
 	
@@ -233,7 +235,7 @@ public class ClienteController {
 			
 			return clienteDTO;
 		} catch (Exception e) {
-			//throw new Excepcion(e.getMessage(), 500);
+//			throw new Excepcion(e.getMessage(), 500);
 			return null;
 		}
 	}

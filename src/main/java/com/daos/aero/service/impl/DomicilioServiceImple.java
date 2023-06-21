@@ -6,7 +6,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.daos.aero.dto.DomicilioDTO;
 import com.daos.aero.model.Domicilio;
 import com.daos.aero.repository.IDomicilioRepository;
 import com.daos.aero.service.IDomicilioService;

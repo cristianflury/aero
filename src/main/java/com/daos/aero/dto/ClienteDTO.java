@@ -10,7 +10,9 @@ import com.daos.aero.model.Domicilio;
 
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 
 public class ClienteDTO extends RepresentationModel<ClienteDTO>{
@@ -18,20 +20,31 @@ public class ClienteDTO extends RepresentationModel<ClienteDTO>{
 	@Id
 	@NotNull
 	private Long dni;
+
 	@NotNull
+	@Size(min = 1,max = 30, message = "El nombre es demasiado largo o inválido.")
 	private String nombre;	
+
 	@NotNull
+	@Size(min = 1,max = 30, message = "El apellido es demasiado largo o inválido.")
 	private String apellido;	
+
 	@NotNull
+	@Email(message = "El e-mail ingresado no es valido.")
 	private String email;	
+
 	@NotNull
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	@Nonnull
 	private Date nacimiento;
+
 	@Nonnull
-	private Domicilio domicilio;
+	private Domicilio domicilio; //cambiar por Long idDomicilio
+
 	private String numeroPasaporte;
+
 	private Date vencimientoPasaporte;
+
 	
 	//constructores
 	public ClienteDTO() {
