@@ -2,13 +2,12 @@ package com.daos.aero.service.impl;
 
 import java.util.Date;
 import java.util.List;
-
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import com.daos.aero.dto.PasajeRequestDTO;
 import com.daos.aero.dto.PasajeResponseDTO;
-import com.daos.aero.excepcion.Excepcion;
+import com.daos.aero.excepcion.PasajeException;
 import com.daos.aero.model.Cliente;
 import com.daos.aero.model.Pasaje;
 import com.daos.aero.model.Vuelo;
@@ -19,86 +18,132 @@ import com.daos.aero.service.VueloService;
 
 @Service
 public class PasajeServiceImpl implements PasajeService {
-	
+
+	private static final String TIPO_VUELO_INTERNACIONAL = "INTERNACIONAL";
+
 	@Autowired
 	private IClienteService clienteService;
-	
+
 	@Autowired
 	private VueloService vueloService;
-	
+
 	@Autowired
 	private PasajeRepository pasajeRepository;
 
 	@Override
-	public PasajeResponseDTO emitir(Long dni, Long nroVuelo, Integer nroAsiento) throws Exception {
-		
+	public PasajeResponseDTO emitir(Long dni, Long nroVuelo, Integer nroAsiento) throws PasajeException {
+
 		Cliente cliente = validarCliente(dni);
+
 		Vuelo vuelo = validarVuelo(nroVuelo, nroAsiento);
-		
-		if ("INTERNACIONAL".equalsIgnoreCase(vuelo.getTipoVuelo())) {
-			
-			
-		}
-		
-		return null;
-	}
 
+		if (TIPO_VUELO_INTERNACIONAL.equalsIgnoreCase(vuelo.getTipoVuelo())) {
 
-	private Cliente validarCliente(Long dni) throws Excepcion {
-		
-        Cliente cliente = clienteService.getById(dni);
-		
-		if (cliente == null) {
-			
-			throw new Excepcion("Cliente no encontrado", HttpStatus.NOT_FOUND.value());
-			
+			validarPasaporte(cliente);
 		}
-		
-		return cliente;
+
+		Double importe = getCostoMock();
+
+		Pasaje pasaje = registrarPasaje(nroAsiento, cliente, vuelo, importe);
+
+		return new PasajeResponseDTO(pasaje);
 		
 	}
 	
-    private Vuelo validarVuelo(Long nroVuelo, Integer nroAsiento) throws Excepcion {
+	@Override
+	public Optional<Pasaje> consultar(Long nroPasaje) {
 		
-        Vuelo vuelo = vueloService.getById(nroVuelo).orElse(null);
-    	
-    	if(vuelo == null) {
-
-			throw new Excepcion("Vuelo no encontrado", HttpStatus.NOT_FOUND.value());
-    		
-    	}
-    	 
-    	
-    	if(vuelo.getFecha().before(new Date())){
-    		
-    		throw new Excepcion("El vuelo elegido se encuentra fuera de fecha", HttpStatus.CONFLICT.value());
-    	}
-    	
-    	
-        Integer totalAsientos = vuelo.getNroFilas() * vuelo.getNroAsientosPorFila();
-        
-        if(nroAsiento <= totalAsientos) {
-        	
-        	// TODO Validar si es el primer pasaje
-        	
-        	List<Pasaje> pasajes = pasajeRepository.findByVuelo(vuelo);
-        	
-        	for (Pasaje pasaje : pasajes) {
-        		
-        		if (pasaje.getNroAsiento() == nroAsiento) {
-        			
-        			throw new Excepcion("Número de asiento no disponible", HttpStatus.CONFLICT.value());
-        		}
-        	}
-        	
-        } else {
-        	
-        	throw new Excepcion("Número de asiento no disponible", HttpStatus.CONFLICT.value());
-        }
-    		
-     
-    	return vuelo;
-		
+		return pasajeRepository.findById(nroPasaje);
 	}
+
+	private Cliente validarCliente(Long dni) throws PasajeException {
+
+		Cliente cliente = clienteService.getById(dni);
+
+		if (cliente == null) {
+
+			throw new PasajeException("Cliente no encontrado", HttpStatus.NOT_FOUND);
+
+		}
+
+		return cliente;
+
+	}
+
+	private Vuelo validarVuelo(Long nroVuelo, Integer nroAsiento) throws PasajeException {
+
+		Vuelo vuelo = vueloService.getById(nroVuelo).orElse(null);
+
+		if (vuelo == null) {
+
+			throw new PasajeException("Vuelo no encontrado", HttpStatus.NOT_FOUND);
+
+		}
+
+		if (vuelo.getFecha().before(new Date())) {
+
+			throw new PasajeException("El vuelo elegido se encuentra fuera de fecha", HttpStatus.CONFLICT);
+		}
+
+		validarAsiento(nroAsiento, vuelo);
+
+		return vuelo;
+
+	}
+
+	private void validarAsiento(Integer nroAsiento, Vuelo vuelo) throws PasajeException {
+		
+		Integer totalAsientos = vuelo.getNroFilas() * vuelo.getNroAsientosPorFila();
+
+		if (nroAsiento <= totalAsientos) {
+
+			List<Pasaje> pasajes = pasajeRepository.findByVuelo(vuelo);
+			
+			if(!pasajes.isEmpty()) {
+				
+				for (Pasaje pasaje : pasajes) {
+
+					if (pasaje.getNroAsiento() == nroAsiento) {
+
+						throw new PasajeException("Número de asiento no disponible", HttpStatus.CONFLICT);
+					}
+				}
+			}
+
+			
+
+		} else {
+
+			throw new PasajeException("Número de asiento no disponible", HttpStatus.CONFLICT);
+		}
+	}
+
+	private void validarPasaporte(Cliente cliente) throws PasajeException {
+
+		if (cliente.getPasaporte() == null || cliente.getPasaporte().getFechaVencimiento().before(new Date())) {
+
+			throw new PasajeException("El cliente no posee pasaporte o el mismo se encuentra vencido", HttpStatus.CONFLICT);
+		}
+	}
+
+	private Double getCostoMock() {
+
+		return 25000.00;
+	}
+
+	private Pasaje registrarPasaje(Integer nroAsiento, Cliente cliente, Vuelo vuelo, Double importe) {
+
+		Pasaje pasaje = new Pasaje();
+
+		pasaje.setCliente(cliente);
+		pasaje.setVuelo(vuelo);
+		pasaje.setNroAsiento(nroAsiento);
+		pasaje.setImporte(importe);
+
+		return pasajeRepository.save(pasaje);
+	}
+
+	
+	
 
 }

@@ -1,13 +1,16 @@
 package com.daos.aero.dto;
 
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PasajeRequestDTO {
 	
+	@JsonProperty("dni")
 	private Long dni;
 	
+	@JsonProperty("nro_vuelo")
 	private Long nroVuelo;
 	
+	@JsonProperty("nro_asiento")
 	private Integer nroAsiento;
 	
 	
