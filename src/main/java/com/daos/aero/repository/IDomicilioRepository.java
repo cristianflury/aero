@@ -7,5 +7,5 @@ import com.daos.aero.model.Domicilio;
 
 @Repository
 public interface IDomicilioRepository extends JpaRepository<Domicilio, Long>{
-
+	
 }

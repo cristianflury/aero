@@ -1,14 +1,50 @@
 package com.daos.aero.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.daos.aero.model.Cliente;
 
 public interface IClienteService {
 	
-	void guardar(Cliente cliente);
+	/**
+	 * Actualiza los datos de un Cliente
+	 * @param cliente
+	 */
+	void actualizar(Cliente cliente);
 	
-	List<Cliente> getAll();
+	/**
+	 * Elimina un cliente
+	 * @param cliente
+	 */
+	void eliminar(Long dni);
 	
-	Cliente getById(Long id);
+	/**
+	 * Filtrar personas por nombre y/o apellido
+	 * @param nombre
+	 * @param apellido
+	 * @return
+	 */
+	List<Cliente> filtrar(String nombre, String apellido);
+	
+	/**
+	 * Guarda un Cliente
+	 * @param cliente
+	 */
+	Cliente guardar(Cliente cliente);
+	
+	/**
+	 * Devuelve lista completa de Clientes
+	 * @return
+	 */
+	//List<Cliente> getAll();
+	
+	/**
+	 * Devuelve un Cliente a partir de su DNI
+	 * @param id
+	 * @return
+	 */
+	Optional<Cliente> getById(Long id);
+	
+	Optional<Cliente> getByEmail(String email);
 }
