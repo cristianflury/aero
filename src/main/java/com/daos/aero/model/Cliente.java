@@ -2,12 +2,12 @@ package com.daos.aero.model;
 
 import java.util.Date;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 
@@ -30,12 +30,12 @@ public class Cliente {
 	private String email;
 
 	@Column(nullable = false)
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@Temporal(TemporalType.DATE)
 	private Date fechaNacimiento;
 
 	private String numeroPasaporte;
 
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@Temporal(TemporalType.DATE)
 	private Date vencimientoPasaporte;
 	
 	//relaciones

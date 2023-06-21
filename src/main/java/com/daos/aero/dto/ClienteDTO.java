@@ -2,7 +2,6 @@ package com.daos.aero.dto;
 
 import java.util.Date;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.RepresentationModel;
 
 import com.daos.aero.model.Cliente;
@@ -10,6 +9,8 @@ import com.daos.aero.model.Domicilio;
 
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.Id;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -34,8 +35,7 @@ public class ClienteDTO extends RepresentationModel<ClienteDTO>{
 	private String email;	
 
 	@NotNull
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	@Nonnull
+	@Temporal(TemporalType.DATE)
 	private Date nacimiento;
 
 	@Nonnull
