@@ -27,8 +27,9 @@ public class ClienteServiceImple implements IClienteService{
 
 	@Override
 	public void eliminar(Long dni) {
-		//debería borrar el domicilio junto con el cliente
+		Optional<Cliente> rta = getById(dni);
 		repo.deleteById(dni);
+		repoDom.deleteById(rta.get().getDomicilio().getId());
 	}
 
 	

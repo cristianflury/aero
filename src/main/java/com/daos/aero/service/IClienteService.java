@@ -20,7 +20,7 @@ public interface IClienteService {
 	void eliminar(Long dni);
 	
 	/**
-	 * Filtrar personas por nombre y/o apellido
+	 * Filtrar todas las personas o por nombre y/o apellido
 	 * @param nombre
 	 * @param apellido
 	 * @return
