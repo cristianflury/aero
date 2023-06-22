@@ -33,6 +33,7 @@ public class Cliente {
 	@Temporal(TemporalType.DATE)
 	private Date fechaNacimiento;
 
+	@Column(unique = true)
 	private String numeroPasaporte;
 
 	@Temporal(TemporalType.DATE)
