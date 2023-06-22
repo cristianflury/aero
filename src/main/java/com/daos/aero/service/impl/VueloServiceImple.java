@@ -1,5 +1,6 @@
 package com.daos.aero.service.impl;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -7,6 +8,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.daos.aero.controller.VueloForm;
 import com.daos.aero.excepcion.Excepcion;
 import com.daos.aero.model.Vuelo;
 import com.daos.aero.repository.IVueloRepository;
@@ -36,6 +38,19 @@ public class VueloServiceImple implements VueloService {
 	@Override
 	public void actualiza(Vuelo v) {
 		repo.save(v);
+	}
+	
+	@Override
+	public void actualizaFecha(Date fecha, Long id) {
+		Vuelo v = repo.findById(id).get();
+		if(!fecha.equals(v.getFecha())) {
+			v.setFecha(fecha);
+			v.setOrigen("Sauce Viejo");
+			v.setEstado("Reprogramado");
+			repo.save(v);
+		}
+			
+		
 	}
 
 	@Override
@@ -67,5 +82,6 @@ public class VueloServiceImple implements VueloService {
 		else
 			return repo.findByTipoVuelo(tipoVuelo);
 	}
+	
 
 }

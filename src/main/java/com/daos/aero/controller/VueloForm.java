@@ -1,8 +1,6 @@
 package com.daos.aero.controller;
 
-import java.sql.Date;
-
-import org.springframework.format.annotation.DateTimeFormat;
+import java.util.Date;
 
 import com.daos.aero.model.Vuelo;
 
@@ -16,7 +14,6 @@ public class VueloForm {
 	@NotNull(message = "el número de vuelo no puede ser nulo")
 	private Long nro;
 
-	@DateTimeFormat(pattern = "dd-MM-yyyy hh:mm:ss")
 	@NotNull
 	@FutureOrPresent(message="la fecha debe ser actual o futura")
 	private Date fecha;
@@ -25,8 +22,8 @@ public class VueloForm {
 	@Max(value=8, message = "demasiados asientos por fila")
 	private int nroAsientosPorFila;
 	private String tipoVuelo;
-	@Nonnull
 	private String destino;
+	
 	
 	//Get and Set
 	public Long getNro() {
@@ -35,6 +32,8 @@ public class VueloForm {
 	public void setNro(Long nro) {
 		this.nro = nro;
 	}
+	
+	
 	public Date getFecha() {
 		return fecha;
 	}
@@ -77,6 +76,8 @@ public class VueloForm {
 		v.setTipoVuelo(this.getTipoVuelo());
 		return v;
 	}
+	
+	
 	
 
 }

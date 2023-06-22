@@ -1,8 +1,8 @@
 package com.daos.aero.dto;
 
-import java.sql.Date;
 
-import org.springframework.format.annotation.DateTimeFormat;
+import java.util.Date;
+
 import org.springframework.hateoas.RepresentationModel;
 
 import com.daos.aero.model.Vuelo;
@@ -14,7 +14,7 @@ public class VueloDTO extends RepresentationModel<VueloDTO> {
 	@Id
 	private Long nro;
 
-	@DateTimeFormat(pattern = "yyyy-MM-dd hh:mm:ss")
+	
 	private Date fecha;
 
 	private int nroFilas;
@@ -42,6 +42,8 @@ public class VueloDTO extends RepresentationModel<VueloDTO> {
 	public void setNro(Long nro) {
 		this.nro = nro;
 	}
+
+	
 
 	public Date getFecha() {
 		return fecha;
