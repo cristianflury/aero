@@ -1,6 +1,7 @@
 package com.daos.aero.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,18 +39,6 @@ public class ClienteController {
 	
 	/**
 	 * Obtiene un cliente a través de su DNI
-	 * curl --location --request GET 'http://localhost:8080/clientes/43644112' \
-	 * --header 'Content-Type: application/json' \
-	 * --data-raw '{
-	 *     "dni":"43644112",
-	 *     "nombre":"gian",
-	 *     "apellido":"mehring",
-	 *     "email":"gian@mehring.com",
-	 *     "nacimiento":"2001-07-20",
-	 *     "domicilio":{
-	 *         "id":1
-	 *     }
-	 * }'
 	 * @param dni
 	 * @return
 	 * @throws Exception 
@@ -67,21 +56,6 @@ public class ClienteController {
 	
 	/**
 	 * Filtra todos los clientes y también por nombre y/o apellido. 
-	 * Ej1 curl --location --request GET 'http://localhost:8080/clientes?nombre=gian&apellido=mehring'
-	 * Ej2 curl --location --request GET 'http://localhost:8080/clientes?nombre=gian'
-	 * Ej3 curl --location --request GET 'http://localhost:8080/clientes'
-	 * curl --location --request GET 'http://localhost:8080/clientes?nombre=gian&apellido=null' \
-	 * --header 'Content-Type: application/json' \
-	 * --data-raw '{
-	 *     "dni":"43644112",
-	 *     "nombre":"gian",
-	 *     "apellido":"mehring",
-	 *     "email":"gian@mehring.com",
-	 *     "nacimiento":"2001-07-20",
-	 *     "domicilio":{
-	 *         "id":1
-	 *     }
-	 * }'
 	 * @param apellido
 	 * @param nombre
 	 * @return
@@ -99,20 +73,6 @@ public class ClienteController {
 	
 	/**
 	 * Guarda un nuevo cliente en la base de datos
-	 * curl --location 'http://localhost:8080/clientes' \
-	 * --header 'Content-Type: application/json' \
-	 * --data '{
-	 *     "dni":"43644112",
-	 *     "nombre":"gian",
-	 *     "apellido":"mmmmmme",
-	 *     "email":"gian@mehring.com",
-	 *     "nacimiento":"2001-07-20",
-	 *     "domicilio":{
-	 *         "calle": "Mercedita",
-	 *         "numero": "1519",
-	 *         "ciudad": "Humbol"
-	 *     }
-	 * }'
 	 * @param dto
 	 * @return
 	 * @throws Exception
@@ -136,6 +96,34 @@ public class ClienteController {
 			}			
 		}
 		
+				//validaciones
+				if(cliente.getNombre() == null) {
+					throw new ClienteException("El nombre no puede ser nulo.", HttpStatus.NOT_FOUND); //404 Not Found
+				}
+
+				if(cliente.getApellido() == null) {
+					throw new ClienteException("El apellido no puede ser nulo.", HttpStatus.NOT_FOUND); //404 Not Found
+				}
+				
+				if(cliente.getFechaNacimiento() == null) {
+					throw new ClienteException("La fecha de nacimiento no puede ser nula.", HttpStatus.NOT_FOUND); //404 Not Found
+				}
+				
+				if(cliente.getFechaNacimiento().after(new Date())){
+					throw new ClienteException("La fecha de nacimiento no es válida.", HttpStatus.NOT_FOUND); //404 Not Found
+				}
+
+				
+				if(cliente.getNumeroPasaporte() != null && cliente.getVencimientoPasaporte() == null) { //pasaporte sin fecha de vencimiento
+					throw new ClienteException("La fecha de vencimiento del pasaporte no puede ser nula.", HttpStatus.NOT_FOUND); //404 Not Found
+				}
+				
+				if(cliente.getDomicilio() == null) {
+					throw new ClienteException("El domicilio no puede ser nulo.", HttpStatus.NOT_FOUND); //404 Not Found
+				}else if(cliente.getDomicilio().getCiudad() == null) {
+					throw new ClienteException("La ciudad del domicilio no puede ser nula.", HttpStatus.NOT_FOUND); //404 Not Found
+				}
+				
 		//guardo el cliente
 		clienteService.guardar(cliente);
 		
@@ -144,23 +132,6 @@ public class ClienteController {
 	
 	/**
 	 * Modifica un cliente y domicilio existente en la base de datos
-	 * curl --location --request PUT 'http://localhost:8080/clientes/43644112' \
-	 * --header 'Content-Type: application/json' \
-	 * --data-raw '{
-	 *     "dni":"43644112",
-	 *     "nombre":"gian",
-	 *     "apellido":"mehring",
-	 *     "email":"gian@mehring.com",
-	 *     "nacimiento":"2001-07-20",
-	 *     "domicilio":{
-	 *         "id":1,
-	 *         "numero": "1519",
-	 *         "calle": "Merceditas",
-	 *         "ciudad": "Humboldt"
-	 *     },
-	 *     "numeroPasaporte":"1",
-	 *     "vencimientoPasaporte":"2030-01-01"
-	 * }'
 	 * @param dto
 	 * @param dni
 	 * @return
@@ -177,6 +148,10 @@ public class ClienteController {
 				throw new ClienteException("No puede modificar el DNI.", HttpStatus.NOT_FOUND); //404 Not Found
 			}
 			
+			if(!rta.get().getDomicilio().getId().equals(cliente.getDomicilio().getId())){ //ID del domicilio es el identificador. No se puede modificar.
+				throw new ClienteException("No puede modificar el ID del domicilio.", HttpStatus.NOT_FOUND); //404 Not Found
+			}
+			
 			Optional<Cliente> rta2 = clienteService.getByEmail(cliente.getEmail());
 			if(!rta.equals(rta2)) {
 				if(rta2.isPresent() && rta2.get().getEmail().equals(cliente.getEmail())){ //email es único. No se puede repetir.
@@ -191,6 +166,33 @@ public class ClienteController {
 				}
 			}
 			
+			//validaciones
+			if(cliente.getNombre() == null) {
+				throw new ClienteException("El nombre no puede ser nulo.", HttpStatus.NOT_FOUND); //404 Not Found
+			}
+
+			if(cliente.getApellido() == null) {
+				throw new ClienteException("El apellido no puede ser nulo.", HttpStatus.NOT_FOUND); //404 Not Found
+			}
+			
+			if(cliente.getFechaNacimiento() == null) {
+				throw new ClienteException("La fecha de nacimiento no puede ser nula.", HttpStatus.NOT_FOUND); //404 Not Found
+			}
+			
+			if(cliente.getFechaNacimiento().after(new Date())){
+				throw new ClienteException("La fecha de nacimiento no es válida.", HttpStatus.NOT_FOUND); //404 Not Found
+			}
+			
+			if(cliente.getNumeroPasaporte() != null && cliente.getVencimientoPasaporte() == null) { //pasaporte sin fecha de vencimiento
+				throw new ClienteException("La fecha de vencimiento del pasaporte no puede ser nula.", HttpStatus.NOT_FOUND); //404 Not Found
+			}
+			
+			if(cliente.getDomicilio() == null) {
+				throw new ClienteException("El domicilio no puede ser nulo.", HttpStatus.NOT_FOUND); //404 Not Found
+			}else if(cliente.getDomicilio().getCiudad() == null) {
+				throw new ClienteException("La ciudad del domicilio no puede ser nula.", HttpStatus.NOT_FOUND); //404 Not Found
+			}
+			
 			//actualizo el cliente
 			clienteService.actualizar(cliente);
 			
@@ -201,8 +203,6 @@ public class ClienteController {
 	
 	/**
 	 * Elimina un cliente existente en la base de datos.
-	 * curl --location --request DELETE 'http://localhost:8080/clientes/43644112' \
-	 * --data ''
 	 * @param dni
 	 * @return
 	 */

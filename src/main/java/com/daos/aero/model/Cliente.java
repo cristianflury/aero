@@ -25,7 +25,7 @@ public class Cliente {
 	@Size(min = 1,max = 30, message = "El apellido es demasiado largo o inválido.")
 	private String apellido;
 
-	@Column(nullable = false, unique = true)
+	@Column(unique = true)
 	@Email(message = "El e-mail ingresado no es valido.")
 	private String email;
 

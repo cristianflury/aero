@@ -29,7 +29,6 @@ public class ClienteDTO extends RepresentationModel<ClienteDTO>{
 	@Size(min = 1,max = 30, message = "El apellido es demasiado largo o inválido.")
 	private String apellido;	
 
-	@NotNull
 	@Email(message = "El e-mail ingresado no es válido.")
 	private String email;	
 
