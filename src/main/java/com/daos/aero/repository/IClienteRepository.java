@@ -11,5 +11,6 @@ import com.daos.aero.model.Cliente;
 @Repository
 public interface IClienteRepository extends JpaRepository<Cliente, Long>{
 	Optional<Cliente> findByEmail(String email);
+	Optional<Cliente> findByNumeroPasaporte(String numeroPasaporte);
 	List<Cliente> findByNombreOrApellido(String nombre, String apellido);
 }

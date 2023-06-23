@@ -38,15 +38,20 @@ public class ClienteServiceImple implements IClienteService{
 		repoDom.save(cliente.getDomicilio());
 		return repo.save(cliente);
 	}
-
+	
+	@Override
+	public Optional<Cliente> getById(Long id) {
+		return repo.findById(id);
+	}
+	
 	@Override
 	public Optional<Cliente> getByEmail(String email) {
 		return repo.findByEmail(email);
 	}
-
+	
 	@Override
-	public Optional<Cliente> getById(Long id) {
-		return repo.findById(id);
+	public Optional<Cliente> getByNumeroPasaporte(String numeroPasaporte) {
+		return repo.findByNumeroPasaporte(numeroPasaporte);
 	}
 
 	@Override

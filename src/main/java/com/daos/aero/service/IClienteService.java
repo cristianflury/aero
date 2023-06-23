@@ -46,4 +46,11 @@ public interface IClienteService {
 	 * @return
 	 */
 	Optional<Cliente> getByEmail(String email);
+	
+	/**
+	 * Devuelve un cliente a partir del numero de pasaporte
+	 * @param numeroPasaporte
+	 * @return
+	 */
+	Optional<Cliente> getByNumeroPasaporte(String numeroPasaporte);
 }

@@ -63,7 +63,6 @@ public class ClienteController {
 		}
 		
 		throw new ClienteException("Cliente no encontrado.", HttpStatus.NOT_FOUND); //404 Not Found
-		//return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); //404 Not Found
 	}
 	
 	/**
@@ -124,28 +123,23 @@ public class ClienteController {
 			return buildError(result); 
 		}
 		
-		
 		Cliente cliente = dto.toPojo();
 		Optional<Cliente> rtaCliente = clienteService.getById(cliente.getDni());
-		
-		if(rtaCliente.isPresent() && rtaCliente.get().getDni().equals(cliente.getDni())) { //DNI es el identificador. No se puede repetir
-			throw new ClienteException("El DNI indicado ya se encuentra en la base de datos", HttpStatus.NOT_FOUND); //404 Not Found
-			//return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El DNI indicado ya se encuentra en la base de datos"); //404 Not Found
-		}
-		
-		rtaCliente = clienteService.getByEmail(cliente.getEmail());
-		if(rtaCliente.isPresent() && rtaCliente.get().getEmail().equals(cliente.getEmail())) { //email es único. No se puede repetir.
-			throw new ClienteException("El email indicado ya se encuentra en la base de datos", HttpStatus.NOT_FOUND); //404 Not Found
-			//return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El email indicado ya se encuentra en la base de datos"); //404 Not Found
+		if(rtaCliente.isPresent()) {
+			if(rtaCliente.get().getDni().equals(cliente.getDni())) { //DNI es el identificador. No se puede repetir
+				throw new ClienteException("El DNI indicado ya se encuentra en la base de datos", HttpStatus.NOT_FOUND); //404 Not Found
+			}
+			
+			rtaCliente = clienteService.getByEmail(cliente.getEmail());
+			if(rtaCliente.get().getEmail().equals(cliente.getEmail())) { //email es único. No se puede repetir.
+				throw new ClienteException("El email indicado ya se encuentra en la base de datos", HttpStatus.NOT_FOUND); //404 Not Found
+			}			
 		}
 		
 		//guardo el cliente
 		clienteService.guardar(cliente);
 		
-		//URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/clientes/{dni}").buildAndExpand(cliente.getDni()).toUri(); //Por convención en REST, se devuelve la  url del recurso recién creado
-		//falta poner la URL del domicilio
 		return ResponseEntity.ok(buildResponse(cliente)); //200 OK
-		//return ResponseEntity.created(location).build(); //201 (Recurso creado correctamente)
 	}
 	
 	/**
@@ -177,19 +171,23 @@ public class ClienteController {
 		Optional<Cliente> rta = clienteService.getById(dni);
 		if(!rta.isPresent()) {
 			throw new ClienteException("No se encontró el cliente que quiere actualizar.", HttpStatus.NOT_FOUND); //404 Not Found
-//			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró el cliente que quiere actualizar."); //404 Not Found
 		}else {
 			Cliente cliente = dto.toPojo();
 			if(!cliente.getDni().equals(dni)){//DNI es el identificador. No se puede modificar.
 				throw new ClienteException("No puede modificar el DNI.", HttpStatus.NOT_FOUND); //404 Not Found
-//				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No puede modificar el DNI."); //404 Not Found
 			}
 			
 			Optional<Cliente> rta2 = clienteService.getByEmail(cliente.getEmail());
 			if(!rta.equals(rta2)) {
 				if(rta2.isPresent() && rta2.get().getEmail().equals(cliente.getEmail())){ //email es único. No se puede repetir.
 					throw new ClienteException("El email indicado ya se encuentra en la base de datos", HttpStatus.NOT_FOUND); //404 Not Found
-//					return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El email indicado ya se encuentra en la base de datos"); //404 Not Found
+				}
+			}
+			
+			rta2 = clienteService.getByNumeroPasaporte(cliente.getNumeroPasaporte());
+			if(!rta.equals(rta2)) {
+				if(rta2.isPresent() && rta2.get().getNumeroPasaporte().equals(cliente.getNumeroPasaporte())){ //numero de pasaporte es único. No se puede repetir.
+					throw new ClienteException("El número de pasaporte indicado ya se encuentra en la base de datos", HttpStatus.NOT_FOUND); //404 Not Found
 				}
 			}
 			
@@ -212,10 +210,11 @@ public class ClienteController {
 	public ResponseEntity<String> eliminar(@PathVariable Long dni) throws ClienteException{
 		if(!clienteService.getById(dni).isPresent()) {
 			throw new ClienteException("No existe un cliente con ese DNI.", HttpStatus.NOT_FOUND); //404 Not Found
-//			return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("No existe un cliente con ese DNI."); //404 Not Found
 		}
+		
 		//borro el cliente
 		clienteService.eliminar(dni);
+		
 		return ResponseEntity.ok().build(); //200 OK
 	}
 	
@@ -250,7 +249,6 @@ public class ClienteController {
 	 * @return
 	 */
 	private ResponseEntity<Object> buildError(BindingResult result) {
-
 		List<ErrorDTO> errorDtos = result.getFieldErrors().stream()
 				.map(fieldError -> new ErrorDTO(fieldError.getField(), fieldError.getDefaultMessage()))
 				.collect(Collectors.toList());
