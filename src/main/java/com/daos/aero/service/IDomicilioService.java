@@ -3,7 +3,6 @@ package com.daos.aero.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.daos.aero.dto.DomicilioDTO;
 import com.daos.aero.model.Domicilio;
 
 public interface IDomicilioService {
@@ -19,15 +18,6 @@ public interface IDomicilioService {
 	 * @param domicilio
 	 */
 	void eliminar(Long id);
-	
-	/**
-	 * Filtrar un domicilio por su número, calle y ciudad
-	 * @param numero
-	 * @param calle
-	 * @param ciudad
-	 * @return
-	 */
-	//Domicilio filtrar(String numero, String calle, String ciudad);
 	
 	/**
 	 * Guarda un Domicilio

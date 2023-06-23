@@ -34,17 +34,16 @@ public interface IClienteService {
 	Cliente guardar(Cliente cliente);
 	
 	/**
-	 * Devuelve lista completa de Clientes
-	 * @return
-	 */
-	//List<Cliente> getAll();
-	
-	/**
 	 * Devuelve un Cliente a partir de su DNI
 	 * @param id
 	 * @return
 	 */
 	Optional<Cliente> getById(Long id);
 	
+	/**
+	 * Devuelve un Cliente a partir de su email
+	 * @param email
+	 * @return
+	 */
 	Optional<Cliente> getByEmail(String email);
 }

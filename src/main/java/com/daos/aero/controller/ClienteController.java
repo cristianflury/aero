@@ -1,10 +1,7 @@
 package com.daos.aero.controller;
 
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -24,11 +21,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.daos.aero.dto.ClienteDTO;
+import com.daos.aero.dto.ErrorDTO;
+import com.daos.aero.excepcion.ClienteException;
 import com.daos.aero.model.Cliente;
 import com.daos.aero.service.IClienteService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/clientes")
@@ -55,14 +55,15 @@ public class ClienteController {
 	 * @throws Exception 
 	 */
 	@GetMapping(value = "/{dni}", produces = {MediaType.APPLICATION_JSON_VALUE})
-	public ResponseEntity<Cliente> getById(@PathVariable Long dni){
+	public ResponseEntity<ClienteDTO> getById(@PathVariable Long dni) throws ClienteException{
 		Optional<Cliente> rta = clienteService.getById(dni);
 		if(rta.isPresent()) {
 			Cliente pojo = rta.get();
-			return new ResponseEntity<Cliente>(pojo, HttpStatus.OK); //200 OK
+			return new ResponseEntity<ClienteDTO>(buildResponse(pojo), HttpStatus.OK); //200 OK
 		}
 		
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); //404 Not Found
+		throw new ClienteException("Cliente no encontrado.", HttpStatus.NOT_FOUND); //404 Not Found
+		//return ResponseEntity.status(HttpStatus.NOT_FOUND).build(); //404 Not Found
 	}
 	
 	/**
@@ -88,7 +89,7 @@ public class ClienteController {
 	 * @throws Excepcion 
 	 */
 	@GetMapping( produces = { MediaType.APPLICATION_JSON_VALUE})
-	public List<ClienteDTO> filtrarPersonas(@RequestParam(name = "nombre",required = false) String nombre , @RequestParam(name = "apellido",required = false) String apellido) {//throws Excepcion {
+	public List<ClienteDTO> filtrarPersonas(@RequestParam(name = "nombre",required = false) String nombre , @RequestParam(name = "apellido",required = false) String apellido) throws ClienteException {
 		List<Cliente> clientes = clienteService.filtrar(nombre, apellido);
 		List<ClienteDTO> clienteDTO = new ArrayList<ClienteDTO>();
 		for (Cliente pojo : clientes) { //URLs
@@ -118,33 +119,35 @@ public class ClienteController {
 	 * @throws Exception
 	 */
 	@PostMapping
-	public ResponseEntity<Object> guardar(@RequestBody ClienteDTO dto){//, BindingResult result) throws Exception{
-		//if(result.hasErrors()) {
-		//	return null; //ResponseEntity.status(HttpStatus.BAD_REQUEST).body(formatearError(result));
-		//}
-		
-		
-		Cliente cliente = dto.toPojo();
-		Optional<Cliente> rta = clienteService.getById(cliente.getDni());
-
-		
-		if(rta.isPresent() && rta.get().getDni().equals(cliente.getDni())) { //DNI es el identificador. No se puede repetir
-			return null; //ResponseEntity.status(HttpStatus.BAD_REQUEST).body(getError("01", "DNI invalido", "El DNI indicado ya se encuentra en la base de datos"));
+	public ResponseEntity<Object> guardar(@Valid @RequestBody ClienteDTO dto, BindingResult result) throws ClienteException{
+		if(result.hasErrors()) {
+			return buildError(result); 
 		}
 		
 		
-		rta = clienteService.getByEmail(cliente.getEmail());
-		if(rta.isPresent() && rta.get().getEmail().equals(cliente.getEmail())) { //email es único. No se puede repetir.
-			return null; //ResponseEntity.status(HttpStatus.BAD_REQUEST).body(getError("02", "Email invalido", "El email indicado ya se encuentra en la base de datos"));
+		Cliente cliente = dto.toPojo();
+		Optional<Cliente> rtaCliente = clienteService.getById(cliente.getDni());
+		
+		if(rtaCliente.isPresent() && rtaCliente.get().getDni().equals(cliente.getDni())) { //DNI es el identificador. No se puede repetir
+			throw new ClienteException("El DNI indicado ya se encuentra en la base de datos", HttpStatus.NOT_FOUND); //404 Not Found
+			//return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El DNI indicado ya se encuentra en la base de datos"); //404 Not Found
+		}
+		
+		rtaCliente = clienteService.getByEmail(cliente.getEmail());
+		if(rtaCliente.isPresent() && rtaCliente.get().getEmail().equals(cliente.getEmail())) { //email es único. No se puede repetir.
+			throw new ClienteException("El email indicado ya se encuentra en la base de datos", HttpStatus.NOT_FOUND); //404 Not Found
+			//return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El email indicado ya se encuentra en la base de datos"); //404 Not Found
 		}
 		
 		//guardo el cliente
 		clienteService.guardar(cliente);
 		
-		URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/clientes/{dni}").buildAndExpand(cliente.getDni()).toUri(); //Por convención en REST, se devuelve la  url del recurso recién creado
+		//URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/clientes/{dni}").buildAndExpand(cliente.getDni()).toUri(); //Por convención en REST, se devuelve la  url del recurso recién creado
 		//falta poner la URL del domicilio
-		return ResponseEntity.created(location).build(); //201 (Recurso creado correctamente)
+		return ResponseEntity.ok(buildResponse(cliente)); //200 OK
+		//return ResponseEntity.created(location).build(); //201 (Recurso creado correctamente)
 	}
+	
 	/**
 	 * Modifica un cliente y domicilio existente en la base de datos
 	 * curl --location --request PUT 'http://localhost:8080/clientes/43644112' \
@@ -170,27 +173,30 @@ public class ClienteController {
 	 * @throws Exception
 	 */
 	@PutMapping("/{dni}")
-	public ResponseEntity<Object> actualizar(@RequestBody ClienteDTO dto, @PathVariable Long dni) throws Exception{
+	public ResponseEntity<Object> actualizar(@RequestBody ClienteDTO dto, @PathVariable Long dni) throws ClienteException{
 		Optional<Cliente> rta = clienteService.getById(dni);
 		if(!rta.isPresent()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró el cliente que quiere actualizar."); //404 Not Found
+			throw new ClienteException("No se encontró el cliente que quiere actualizar.", HttpStatus.NOT_FOUND); //404 Not Found
+//			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró el cliente que quiere actualizar."); //404 Not Found
 		}else {
 			Cliente cliente = dto.toPojo();
 			if(!cliente.getDni().equals(dni)){//DNI es el identificador. No se puede modificar.
-				return null;//falta terminar la clase getError//ResponseEntity.status(HttpStatus.BAD_REQUEST).body(getError("03", "Dato no editable", "Noi puede modificar el dni."));
+				throw new ClienteException("No puede modificar el DNI.", HttpStatus.NOT_FOUND); //404 Not Found
+//				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No puede modificar el DNI."); //404 Not Found
 			}
 			
 			Optional<Cliente> rta2 = clienteService.getByEmail(cliente.getEmail());
 			if(!rta.equals(rta2)) {
 				if(rta2.isPresent() && rta2.get().getEmail().equals(cliente.getEmail())){ //email es único. No se puede repetir.
-					return null; //ResponseEntity.status(HttpStatus.BAD_REQUEST).body(getError("02", "Email invalido", "El email indicado ya se encuentra en la base de datos"));
+					throw new ClienteException("El email indicado ya se encuentra en la base de datos", HttpStatus.NOT_FOUND); //404 Not Found
+//					return ResponseEntity.status(HttpStatus.NOT_FOUND).body("El email indicado ya se encuentra en la base de datos"); //404 Not Found
 				}
 			}
-			//falta verificar si el email fue modificado y si el nuevo mail (si no es null) no exista en la base de datos
+			
 			//actualizo el cliente
 			clienteService.actualizar(cliente);
-			return ResponseEntity.ok(buildResponse(cliente)); //200 OK
 			
+			return ResponseEntity.ok(buildResponse(cliente)); //200 OK
 		}
 	}
 	
@@ -203,9 +209,10 @@ public class ClienteController {
 	 * @return
 	 */
 	@DeleteMapping("/{dni}")
-	public ResponseEntity<String> eliminar(@PathVariable Long dni){
+	public ResponseEntity<String> eliminar(@PathVariable Long dni) throws ClienteException{
 		if(!clienteService.getById(dni).isPresent()) {
-			return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("No existe un cliente con ese DNI."); //404 Not Found
+			throw new ClienteException("No existe un cliente con ese DNI.", HttpStatus.NOT_FOUND); //404 Not Found
+//			return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("No existe un cliente con ese DNI."); //404 Not Found
 		}
 		//borro el cliente
 		clienteService.eliminar(dni);
@@ -219,7 +226,7 @@ public class ClienteController {
 	 * @return
 	 * @throws Excepcion 
 	 */
-	private ClienteDTO buildResponse(Cliente pojo) {// throws Excepcion {
+	private ClienteDTO buildResponse(Cliente pojo) throws ClienteException {
 		try {
 			ClienteDTO clienteDTO = new ClienteDTO(pojo);
 			
@@ -233,63 +240,21 @@ public class ClienteController {
 			
 			return clienteDTO;
 		} catch (Exception e) {
-			//throw new Excepcion(e.getMessage(), 500);
-			return null;
+			throw new ClienteException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
 	/**
-	 * 
+	 * Toma los datos del error y construye el objeto a devolver
 	 * @param result
 	 * @return
 	 */
-	private String formatearError(BindingResult result) //throws JsonProcessingException
-	{
-//		primero transformamos la lista de errores devuelta por Java Bean Validation
-		List<Map<String, String>> errores= result.getFieldErrors().stream().map(
-				err -> {
-						Map<String, String> error= new HashMap<>();
-						error.put(err.getField(),err.getDefaultMessage() );
-						return error;
-					}).collect(Collectors.toList()
-				);
-		/*
-		MensajeError e1=new MensajeError();
-		e1.setCodigo("01");
-		e1.setMensajes(errores);
-		
-		//ahora usamos la librería Jackson para pasar el objeto a json
-		ObjectMapper maper = new ObjectMapper();
-		String json = maper.writeValueAsString(e1);
-		return json;
-		*/
-		return null;
-	}
-	
-	/**
-	 * 
-	 * @param code
-	 * @param err
-	 * @param descr
-	 * @return
-	 * @throws JsonProcessingException
-	 */
-	private String getError(String code, String err, String descr) //throws JsonProcessingException
-	{
-		/*
-		MensajeError e1 = new MensajeError();
-		e1.setCodigo(code);
-		ArrayList<Map<String, String>> errores=new ArrayList<>();
-		Map<String, String> error = new HashMap<String, String>();
-		error.put(err, descr);
-		errores.add(error);
-		e1.setMensajes(errores);
-		
-		//ahora usamos la librería Jackson para pasar el objeto a json
-				ObjectMapper maper = new ObjectMapper();
-				String json = maper.writeValueAsString(e1);
-				return json;
-				*/
-		return null;
+	private ResponseEntity<Object> buildError(BindingResult result) {
+
+		List<ErrorDTO> errorDtos = result.getFieldErrors().stream()
+				.map(fieldError -> new ErrorDTO(fieldError.getField(), fieldError.getDefaultMessage()))
+				.collect(Collectors.toList());
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDtos);
 	}
 }

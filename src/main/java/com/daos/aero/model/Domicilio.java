@@ -1,13 +1,13 @@
 package com.daos.aero.model;
 
-import java.util.List;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class Domicilio {
@@ -17,6 +17,8 @@ public class Domicilio {
 	private Long id;
 	private String numero;
 	private String calle;
+	@Column(nullable = false)
+	@Size(min = 1,max = 50, message = "El nombre de la ciudad es demasiado largo o inválido.")
 	private String ciudad;
 	
 	//relaciones

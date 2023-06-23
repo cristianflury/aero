@@ -2,34 +2,44 @@ package com.daos.aero.model;
 
 import java.util.Date;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class Cliente {
 	//atributos
 	@Id
 	private Long dni;
+
 	@Column(nullable = false)
+	@Size(min = 1,max = 30, message = "El nombre es demasiado largo o inválido.")
 	private String nombre;
+
 	@Column(nullable = false)
+	@Size(min = 1,max = 30, message = "El apellido es demasiado largo o inválido.")
 	private String apellido;
+
 	@Column(nullable = false, unique = true)
+	@Email(message = "El e-mail ingresado no es valido.")
 	private String email;
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
+
 	@Column(nullable = false)
+	@Temporal(TemporalType.DATE)
 	private Date fechaNacimiento;
+
 	private String numeroPasaporte;
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
+
+	@Temporal(TemporalType.DATE)
 	private Date vencimientoPasaporte;
 	
 	//relaciones
 	@OneToOne
-	//@JoinColumn(name = "domicilio_id")
 	private Domicilio domicilio;
 	
 	//getter & setter
