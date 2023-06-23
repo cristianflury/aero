@@ -9,10 +9,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class RestExceptionHandler {
 	
 	
+
+	
     @ExceptionHandler(PasajeException.class)
     public ResponseEntity<ErrorResponse> handlePasajeException(PasajeException ex) {
     	
         ErrorResponse errorResponse = new ErrorResponse(ex.getMensaje());
         return new ResponseEntity<>(errorResponse, ex.getStatus());
     }
+    
+	@ExceptionHandler(VueloException.class)
+    public ResponseEntity<ErrorResponse> handlePasajeException(VueloException ex) {
+    	
+        ErrorResponse errorResponse = new ErrorResponse(ex.getMensaje());
+        return new ResponseEntity<>(errorResponse, ex.getStatus());
+    }
+
+
 }

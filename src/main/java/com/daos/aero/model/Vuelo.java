@@ -1,14 +1,14 @@
 package com.daos.aero.model;
 
-import java.sql.Date;
-
-import org.springframework.format.annotation.DateTimeFormat;
+import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -19,7 +19,7 @@ public class Vuelo {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long nro;
 
-	@DateTimeFormat(pattern = "dd-MM-yyyy hh:mm:ss")
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "fecha", nullable = false)
 	private Date fecha;
 	
@@ -29,19 +29,21 @@ public class Vuelo {
 	private int nroAsientosPorFila;
 	@Column(name = "tipo_vuelo")
 	private String tipoVuelo;
-	@NotNull
+
 	private String destino;
 	private String origen;
 	private String estado;
 
 	// Getters and Setters
-	public long getNro() {
+	public Long getNro() {
 		return nro;
 	}
 
-	public void setNro(long nro) {
+	public void setNro(Long nro) {
 		this.nro = nro;
 	}
+
+	
 
 	public Date getFecha() {
 		return fecha;

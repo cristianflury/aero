@@ -1,5 +1,6 @@
 package com.daos.aero.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,5 +41,8 @@ public interface VueloService {
 	public void elimina(Long id);
 	
 	public List<Vuelo> filtrar(String tipoVuelo);
+	
+	public void actualizaFecha(Date fecha, Long id);
+	
 
 }	
